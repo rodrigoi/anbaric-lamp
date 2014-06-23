@@ -1,0 +1,74 @@
+<!doctype html>
+
+<html>
+
+  <head>
+    <title>Anbaric Lamp</title>
+    <meta name="viewport" content="width=device-width">
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <script src="/anbaric-lamp-vendor.js"></script>
+    <script src="/anbaric-lamp.js"></script>
+    <style type="text/css">
+      body {
+        padding-top: 100px;
+        padding-bottom: 20px;
+      }
+    </style>
+  </head>
+
+  <body>
+    <!-- a href="https://github.com/rodrigoi/anbaric-lamp"><img style="position: absolute; top: 0; right: 0; border: 0; z-index: 1040;" src="https://camo.githubusercontent.com/652c5b9acfaddf3a9c326fa6bde407b87f7be0f4/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f72696768745f6f72616e67655f6666373630302e706e67" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_orange_ff7600.png"></a -->
+    <div class="navbar navbar-inverse navbar-fixed-top">
+      <div class="container">
+        <div class="navbar-header">
+          <a class="navbar-brand" href="#">Anbaric Lamp Demo</a>
+        </div>
+      </div>
+    </div>
+    <div class="container">
+      <div class="row">
+        <div class="col-md-6">
+          <div class="well">
+            <p class="text-center">source</p>
+            <img id="source" class="center-block" src="images/douglas.png" /></div>
+          </div>
+        <div class="col-md-6">
+          <div class="well">
+            <p class="text-center">debug</p>
+            <div id="destination"></div>
+          </div>
+        </div>
+      </div>
+      <hr>
+      <footer>
+        <p>&copy; 2014</p>
+      </footer>
+    </div>
+    <script>
+      window.onload = function (){
+        var anbaric = require('anbaric-lamp');
+
+        //demo source image
+        var source = document.getElementById('source');
+
+        //demo destination container
+        var destination = document.getElementById('destination');
+
+        //get the stroke width transform result
+        var result = anbaric.lamp.read(source);
+
+        //once we have a result, we can use the illuminator to select text
+        var illuminator = require('illuminator')['default'];
+        console.log(illuminator);
+        illuminator.foo(source, result, anbaric.lamp.highlight);
+
+        //get a canvas with a representation of the transformation mask
+        //and draw the text candidates
+        var canvas = anbaric.lamp.resultToCanvas(result);
+        canvas.className = "center-block";
+        destination.appendChild(canvas);
+      }
+    </script>
+  </body>
+
+</html>

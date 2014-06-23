@@ -1,0 +1,18 @@
+{
+  "name": "anbaric-lamp",
+  "description": "0.0.1",
+  "main": [
+    "dist/js/select-text.js",
+    "dist/js/worker.js"
+  ],
+  "dependencies": {
+    "jsfeat": "*",
+    "loader.js": "~1.0.0",
+    "ocrad-bower": "*"
+  },
+  "overrides": {
+    "jsfeat": {
+      "main": "build/jsfeat.js"
+    }
+  }
+}
