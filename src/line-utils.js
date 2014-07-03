@@ -124,9 +124,6 @@ var self = {
 
     return lines;
 
-
-
-
     while(pairs.length){
       var pair = pairs.shift();
       var left_group = pair.left.group;
@@ -171,8 +168,6 @@ var self = {
       groups[left_group] = null;
     }
 
-    console.timeEnd('create lines');
-
     return groups.filter(function(e){
       return e;
     }).map(function(e){
@@ -180,7 +175,6 @@ var self = {
     });
   },
   wrap_lines: function (letters){
-    //console.time('wrap lines');
     if(letters.length === 0) return null;
 
     letters = letters.sort(function(a, b){ return a.cx - b.cx; });
@@ -239,8 +233,6 @@ var self = {
       return a - b;
     }).slice(-1)[0];
 
-
-    //console.timeEnd('wrap lines');
     return {
       letters: letters,
       lettercount: letters.length,

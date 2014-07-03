@@ -15,7 +15,7 @@ var containerId = textAreaId + '-container';
 
 function keyDown (event){
   var code = event.keyCode || event.which;
-  if(!(event.ctrlKey || event/metaKey)) {
+  if(!(event.ctrlKey || event.metaKey)) {
     return;
   }
 
@@ -42,13 +42,18 @@ function keyDown (event){
     }
     container.style.display = 'block';
 
-    textarea = document.createElement('textarea');
-    textarea.setAttribute('style', [, 'width: 1px;', 'height: 1px;', 'padding: 0px;'].join(''));
-    textarea.id = textAreaId;
+    textArea = document.createElement('textArea');
+    textArea.setAttribute('style', [, 'width: 1px;', 'height: 1px;', 'padding: 0px;'].join(''));
+    textArea.id = textAreaId;
+
     container.innerHTML = '';
-    container.appendChild(document.createTextNode(me.value));
-    textarea.focus();
-    textarea.select();
+    container.appendChild(textArea);
+
+    textArea.appendChild(document.createTextNode(me.value));
+    textArea.focus();
+    textArea.select();
+
+    console.log('text copied to the clipboard');
   }, 0);
 }
 function keyUp (event){
@@ -59,9 +64,8 @@ function keyUp (event){
   container.style.display = 'none';
 }
 
-
-document.addEventListerner('keydown', keyDown);
-document.addEventListerner('keyup', keyUp);
+document.addEventListener('keydown', keyDown);
+document.addEventListener('keyup', keyUp);
 
 var self = {
   setClipboard: function setClipboard(value) {

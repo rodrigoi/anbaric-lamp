@@ -96,7 +96,6 @@ function strokeWidthTransform(imageData, cannyImage, sobelImage, dark_on_light){
     return lineUtils.wrap_lines([].concat.apply([], cluster.map(function(e){ return e.letters; })));
   });
 
-  console.time("split lines");
   // this is a weird thing that does a quasi-dynamic programmingish
   // thing in order to figure out vertical lines and then use that
   // to split up lines
@@ -106,7 +105,6 @@ function strokeWidthTransform(imageData, cannyImage, sobelImage, dark_on_light){
   })).filter(function(e){
     return e.lettercount > 1;
   });
-  console.timeEnd("split lines");
 
   lines = lines.map(function(line){
     if(line.letters.length < 7) return line;
@@ -159,8 +157,6 @@ function strokeWidthTransform(imageData, cannyImage, sobelImage, dark_on_light){
       letter.shape = contour;
     });
   });
-
-  console.log(lines);
 
   console.groupEnd();
   return lines;

@@ -11,8 +11,6 @@ import params from "constants";
 import swt from "swt";
 
 function getImageData (source){
-  console.time('canvas processing');
-
   //we create an in memory canvas to to get the image data using the canvas' context.
   //it should have the same dimensions
   var canvas = document.createElement('canvas');
@@ -26,18 +24,14 @@ function getImageData (source){
   //now we can get the image data and resolve the promise
   var data = context.getImageData(0, 0, source.width, source.height);
 
-  console.timeEnd('canvas processing');
   return data;
 }
 
 function createGrayScaleImage (imageData) {
-  console.time('greyscale');
-
   //we need a matrix representing the greyscale image
   var grayscaleImage = new jsfeat.matrix_t(imageData.width, imageData.height, jsfeat.U8C1_t);
   jsfeat.imgproc.grayscale(imageData.data, grayscaleImage.data);
 
-  console.timeEnd('greyscale');
   return grayscaleImage;
 }
 
@@ -48,18 +42,15 @@ function createSobelImage (matrix) {
 }
 
 function applyGaussianBlurAndCannyEdgeDetector(matrix) {
-  console.time('canny edge detector');
   jsfeat.imgproc.gaussian_blur(matrix, matrix, 3, 0);
   // //now we need to run a canny edge detector on the greyscale matrix
   jsfeat.imgproc.canny(matrix, matrix, params.low_thresh, params.high_thresh);
-  console.timeEnd('canny edge detector');
 }
 
 function strokeWidthTransform(imageData, cannyImage, sobelImage) {
   //the transform function returns an array of lines
   //each line containing the individual letter information
   var lines = swt.transform(imageData, cannyImage, sobelImage);
-  console.log(lines);
   return {
     mask: cannyImage,
     lines: lines
@@ -90,10 +81,10 @@ function drawResultMatrix(result) {
     // //draw line bounding box
     context.beginPath();
     context.rect(
-      line.x0,
-      line.y0,
-      line.x1 - line.x0,
-      line.y1 - line.y0
+      line.bounds.x0,
+      line.bounds.y0,
+      line.bounds.x1 - line.bounds.x0,
+      line.bounds.y1 - line.bounds.y0
     );
     context.lineWidth = 1;
     context.strokeStyle = 'blue';
@@ -103,10 +94,10 @@ function drawResultMatrix(result) {
     line.letters.forEach(function (letter) {
       context.beginPath();
       context.rect(
-        letter.x0,
-        letter.y0,
-        letter.x1 - letter.x0,
-        letter.y1 - letter.y0
+        letter.bounds.x0,
+        letter.bounds.y0,
+        letter.bounds.x1 - letter.bounds.x0,
+        letter.bounds.y1 - letter.bounds.y0
       );
       context.lineWidth = 1;
       context.strokeStyle = 'orange';
@@ -117,8 +108,6 @@ function drawResultMatrix(result) {
 
 var lamp = {
   read: function read(source){
-    console.time('total swt time');
-
     var imageData = getImageData(source);
     var matrix = createGrayScaleImage(imageData);
     var sobelImage = createSobelImage(matrix);
@@ -162,10 +151,10 @@ var lamp = {
     // //draw line bounding box
     context.beginPath();
     context.rect(
-      result.lines[line].letters[letter].x0,
-      result.lines[line].letters[letter].y0,
-      result.lines[line].letters[letter].x1 - result.lines[line].letters[letter].x0,
-      result.lines[line].letters[letter].y1 - result.lines[line].letters[letter].y0
+      result.lines[line].letters[letter].bounds.x0,
+      result.lines[line].letters[letter].bounds.y0,
+      result.lines[line].letters[letter].bounds.x1 - result.lines[line].letters[letter].bounds.x0,
+      result.lines[line].letters[letter].bounds.y1 - result.lines[line].letters[letter].bounds.y0
     );
     context.lineWidth = 1;
     context.strokeStyle = 'cyan';
