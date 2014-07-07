@@ -6,8 +6,8 @@
     <title>Anbaric Lamp</title>
     <meta name="viewport" content="width=device-width">
     <link rel="stylesheet" href="css/bootstrap.min.css">
-    <script src="/anbaric-lamp-vendor.js"></script>
-    <script src="/anbaric-lamp.js"></script>
+    <script src="anbaric-lamp-vendor.js"></script>
+    <script src="anbaric-lamp.js"></script>
     <style type="text/css">
       body {
         padding-top: 100px;
@@ -27,12 +27,12 @@
     </div>
     <div class="container">
       <div class="row">
-        <div class="col-md-6">
+        <div class="col-lg-6">
           <div class="well">
             <p class="text-center">source</p>
             <img id="source" class="center-block" src="images/douglas.png" /></div>
           </div>
-        <div class="col-md-6">
+        <div class="col-lg-6">
           <div class="well">
             <p class="text-center">debug</p>
             <div id="destination"></div>
@@ -46,7 +46,7 @@
     </div>
     <script>
       window.onload = function (){
-        var anbaric = require('anbaric-lamp');
+        var anbaricLamp = require('anbaric-lamp')['default'];
 
         //demo source image
         var source = document.getElementById('source');
@@ -54,18 +54,20 @@
         //demo destination container
         var destination = document.getElementById('destination');
 
+        var lamp = anbaricLamp(source, destination);
+
         //get the stroke width transform result
-        var result = anbaric.lamp.read(source);
+        //var result = anbaricLamp.lamp.read(source);
 
         //once we have a result, we can use the illuminator to select text
-        var illuminator = require('illuminator')['default'];
-        illuminator.foo(source, result, anbaric.lamp.highlight);
+        //var illuminator = require('illuminator')['default'];
+        //illuminator.foo(source, result, anbaricLamp.lamp.highlight);
 
         //get a canvas with a representation of the transformation mask
         //and draw the text candidates
-        var canvas = anbaric.lamp.resultToCanvas(result);
-        canvas.className = "center-block";
-        destination.appendChild(canvas);
+        //var canvas = anbaricLamp.lamp.resultToCanvas(result);
+        //canvas.className = "center-block";
+        //destination.appendChild(canvas);
       }
     </script>
   </body>

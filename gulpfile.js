@@ -38,18 +38,18 @@ gulp.task('scripts', function (){
     .pipe(plugins.es6ModuleTranspiler({type: 'amd'}))
     .pipe(plugins.concat('anbaric-lamp.js'))
     .pipe(gulp.dest(paths.build))
-    .pipe(plugins.rename({ suffix: '.min' }))
-    .pipe(plugins.uglify())
-    .pipe(gulp.dest(paths.build));
+    // .pipe(plugins.rename({ suffix: '.min' }))
+    // .pipe(plugins.uglify())
+    // .pipe(gulp.dest(paths.build));
 });
 
 gulp.task('vendor', function (){
   plugins.bowerFiles()
     .pipe(plugins.concat('anbaric-lamp-vendor.js'))
     .pipe(gulp.dest(paths.build))
-    .pipe(plugins.rename({ suffix: '.min' }))
-    .pipe(plugins.uglify())
-    .pipe(gulp.dest(paths.build));
+    // .pipe(plugins.rename({ suffix: '.min' }))
+    // .pipe(plugins.uglify())
+    // .pipe(gulp.dest(paths.build));
 });
 
 gulp.task('clean', function (){

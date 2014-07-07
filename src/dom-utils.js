@@ -1,5 +1,11 @@
 var self = {
-  getOffsetRect: function getOffsetRect (element) {
+  createCanvas: function (width, height) {
+    var canvas = document.createElement('canvas');
+    canvas.width = width;
+    canvas.height = height;
+    return canvas;
+  },
+  getOffsetRect: function (element) {
     var box = element.getBoundingClientRect();
 
     var body = document.body;
@@ -21,14 +27,14 @@ var self = {
       height: element.height
     };
   },
-  getMousePosition: function getMousePosition(element, event) {
+  getMousePosition: function (element, event) {
     var rect = element.getBoundingClientRect();
     return {
       x: event.clientX - rect.left,
       y: event.clientY - rect.top
     }
   },
-  nodeName: function nodeName(node, name) {
+  nodeName: function (node, name) {
     return !!(node.nodeName.toLowerCase() === name);
   }
 };

@@ -8,11 +8,15 @@
   "dependencies": {
     "jsfeat": "*",
     "loader.js": "~1.0.0",
-    "ocrad-bower": "*"
+    "ocrad-bower": "*",
+    "heapqueue.js": "git@github.com:antimatter15/heapqueue.js.git"
   },
   "overrides": {
     "jsfeat": {
       "main": "build/jsfeat.js"
+    },
+    "heapqueue.js": {
+      "main": "heapqueue.js"
     }
   }
 }

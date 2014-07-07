@@ -7,19 +7,17 @@ http://www.easyrgb.com/index.php?X=MATH&H=07#text7
 */
 
 var self = {
-  rgbFromImageData: function (index, imageData) {
-    return  Math.floor(imageData.data[4 * index] / 8) +
-            Math.floor(imageData.data[4 * index + 1] / 8) * 32 +
-            Math.floor(imageData.data[4 * index + 2] / 8) * 1024;
-  },
   labFromImageData: function (index, imageData) {
-    return self.rgb2lab([
+    return self.rgbTolab([
       imageData.data[4 * index],
       imageData.data[4 * index + 1],
       imageData.data[4 * index + 2]
     ]);
   },
-  rgb2lab: function (rgb){
+  /*
+  https://github.com/naptha/naptha.github.io/blob/master/js/swt-worker.js#L2188
+  */
+  rgbTolab: function (rgb){
     var r = rgb[0] / 255;
     var g = rgb[1] / 255;
     var b = rgb[2] / 255;
@@ -41,14 +39,18 @@ var self = {
 
     return [(116 * y) - 16, 500 * (x - y), 200 * (y - z)];
   },
+  /*
+  https://github.com/naptha/naptha.github.io/blob/master/js/swt-worker.js#L3407
+  */
   colorFilter: function (regions, imageData, dilationMatrix) {
+    console.time('create color filter matrix from letters and dilation matrix');
+    var width = imageData.width;
+    var height = imageData.height;
+
     var pixelMap = new Uint16Array(width * height);
     var intoct = new Uint32Array(16 * 16 * 16);
     var extoct = new Uint32Array(16 * 16 * 16);
     var zeroes = new Uint32Array(16 * 16 * 16);
-
-    var width = imageData.width;
-    var height = imageData.height;
 
     var padding = {
       x: 30,
@@ -67,35 +69,39 @@ var self = {
 
       //get region bounds
       var bounds = {
-        x0: Math.max(0, region.x0 - padding.x),
-        y0: Math.max(0, region.y0 - padding.y),
-        x1: Math.min(width, region.x1 + padding.x),
-        y1: Math.min(height, region.y1 + padding.y)
+        x0: Math.max(0, region.bounds.x0 - padding.x),
+        y0: Math.max(0, region.bounds.y0 - padding.y),
+        x1: Math.min(width, region.bounds.x1 + padding.x),
+        y1: Math.min(height, region.bounds.y1 + padding.y)
       };
 
       for(var x = bounds.x0; x < bounds.x1; x++) {
         for (var y = bounds.y0; y < bounds.y1; y++) {
 
           var index = x + y * width;
-          var color = self.rgbFromImageData(index, imageData);
+          var lab = self.labFromImageData(index, imageData);
+
+          var color = Math.round((2 * lab[0] + 40) / 16) |
+            Math.round((lab[1] + 128) / 16) << 4 |
+            Math.round((lab[2] + 128) / 16) << 8;
 
           pixelMap[index] = color;
           if(dilationMatrix.data[index] === 1) {
             extoct[color]++;
+            extoct[color+1]++;
+            extoct[color-1]++;
             extoct[color+16]++;
             extoct[color-16]++;
             extoct[color+256]++;
             extoct[color-256]++;
-            extoct[color+1]++;
-            extoct[color-1]++;
           } else if (dilationMatrix.data[index] === 2) {
             intoct[color]++;
+            intoct[color+1]++;
+            intoct[color-1]++;
             intoct[color+16]++;
             intoct[color-16]++;
             intoct[color+256]++;
             intoct[color-256]++;
-            intoct[color+1]++;
-            intoct[color-1]++;
           }
         }
       }
@@ -111,6 +117,7 @@ var self = {
       }
     }
 
+    console.timeEnd('create color filter matrix from letters and dilation matrix');
     return marker;
   }
 };

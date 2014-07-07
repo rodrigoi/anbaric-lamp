@@ -1,100 +1,44 @@
 var self = {
-  equivalence_classes : function(elements, is_equal){
-    var node = [];
-    for(var i = 0; i < elements.length; i++){
-      node.push({
-        parent: 0,
-        element: elements[i],
-        rank: 0
-      });
-    }
+  zigometer: function(letters){
+    var verticalOverlap = 2; // this is the allowable vertical extent
 
-    for(var i = 0; i < node.length; i++){
-      var root = node[i];
-      while(root.parent){
-        root = root.parent;
-      }
+    // cant calculate discrete 2nd deriv of 2 points
+    if(letters.length < 3) {
+      return 0;
+    };
 
-      for(var j = 0; j < node.length; j++){
-        if(i === j) continue;
-        if(!is_equal(node[i].element, node[j].element)) continue;
-        var root2 = node[j];
-        while(root2.parent){
-          root2 = root2.parent;
-        }
-        if(root2 !== root){
-          if(root.rank > root2.rank){
-            root2.parent = root;
-          }else{
-            root.parent = root2;
-            if(root.rank === root2.rank){
-              root2.rank++;
-            }
-            root = root2;
-          }
-          var node2 = node[j];
-          while(node2.parent){
-            var temp = node2;
-            node2 = node2.parent;
-            temp.parent = root;
-          }
-          var node2 = node[i];
-          while(node2.parent){
-            var temp = node2;
-            node2 = node2.parent;
-            temp.parent = root;
-          }
-        }
-      }
-    }
+    letters.sort(self.compareXCenter);
 
-    var index = 0;
-    var clusters = [];
-    for(var i = 0; i < node.length; i++){
-      var j = -1;
-      var node1 = node[i];
-      while(node1.parent){
-        node1 = node1.parent;
+    var last = letters[0];
+    var lastdy;
+    var sigddy = 0;
+    for(var i = 1; i < letters.length; i++){
+      var dy =  Math.max(verticalOverlap, Math.max(last.bounds.y0, letters[i].bounds.y0) - Math.min(last.bounds.y1, letters[i].bounds.y1)) - verticalOverlap;
+      if(i > 1) {
+        sigddy += Math.abs(dy - lastdy);
       }
-      if(node1.rank >= 0){
-        node1.rank = ~index++;
-      }
-      j = ~node1.rank;
-
-      if(clusters[j]){
-        clusters[j].push(elements[i]);
-      }else{
-        clusters[j] = [elements[i]];
-      }
-    }
-    return clusters;
-  },
-  zigometer: function(set){
-    debugger;
-    var v_overlap = 2; // this is the allowable vertical extent
-
-    if(set.length < 3) return 0; // cant calculate discrete 2nd deriv of 2 points
-    set.sort(function(a, b){ return a.x1 - b.x1; }); // im debating whether this is a better metric than cx
-    var last = set[0], lastdy, sigddy = 0;
-    for(var i = 1; i < set.length; i++){
-      var dy =  Math.max(v_overlap, Math.max(last.y0, set[i].y0) - Math.min(last.y1, set[i].y1)) - v_overlap;
-      if(i > 1) sigddy += Math.abs(dy - lastdy);
       lastdy = dy;
-      last = set[i];
+      last = letters[i];
     }
-    return 1000 * sigddy;
+    return sigddy;
   },
-  bounding_box: function(set){
-    var x0 = set[0].x0;
-    var y0 = set[0].y0;
-    var x1 = set[0].x1;
-    var y1 = set[0].y1;
+  boxesIntersect: function(a, b){
+    var width = Math.min(a.x1, b.x1) - Math.max(a.x0, b.x0);
+    var height = Math.min(a.y1, b.y1) - Math.max(a.y0, b.y0);
+    var min_area = Math.min((a.x1 - a.x0) * (a.y1 - a.y0), (b.x1 - b.x0) * (b.y1 - b.y0));
+    return (width > 0 && height > 0) && (width * height) > 0.3 * min_area;
+  },
+  getBoundingBox: function(letters){
+    var x0 = letters[0].bounds.x0;
+    var y0 = letters[0].bounds.y0;
+    var x1 = letters[0].bounds.x1;
+    var y1 = letters[0].bounds.y1;
 
-    for(var i = 1; i < set.length; i++){
-      x0 = Math.min(x0, set[i].x0);
-      y0 = Math.min(y0, set[i].y0);
-      x1 = Math.max(x1, set[i].x1);
-      y1 = Math.max(y1, set[i].y1);
+    for(var i = 1; i < letters.length; i++){
+      x0 = Math.min(x0, letters[i].bounds.x0);
+      y0 = Math.min(y0, letters[i].bounds.y0);
+      x1 = Math.max(x1, letters[i].bounds.x1);
+      y1 = Math.max(y1, letters[i].bounds.y1);
     }
     return {
       x0: x0,
@@ -109,10 +53,16 @@ var self = {
     return a - b;
   },
   compareX: function (a, b) {
-    return self.compare(a.x1, b.x1);
+    return self.compare(a.bounds.x1, b.bounds.x1);
+  },
+  compareXCenter: function (a, b) {
+    return a.center.x - b.center.x;
+  },
+  compareYCenter: function (a, b) {
+    return a.center.y - b.center.y;
   },
   getHeight: function (a) {
-    return a.height;
+    return a.dimensions.height;
   }
 };
 

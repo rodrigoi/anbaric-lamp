@@ -1,3 +1,4 @@
+//mocks for douglas.png on demo page.
 var mocks = [
   {
     letters: [
