@@ -1,10 +1,10 @@
 import domUtils from 'dom-utils';
-import clipboard from 'clipboard';
+import utils from 'utils';
 
 var me = this;
 
 var rst;
-var lines;
+//var lines;
 var img;
 var canvas;
 var context;
@@ -18,17 +18,34 @@ var params = {
   padding: 3        //padding in percentage of line height for selection box
 };
 
-function isBetweenBounds(x, y, x0, x1, y0, y1) {
-  return x >= x0 && x <= x1 && y >= y0 && y <= y1;
-}
-
 function findClosestLine(x, y, lines) {
   for (var i = 0; i < lines.length; i++) {
     var line = lines[i];
-    if(isBetweenBounds(x, y, line.bounds.x0, line.bounds.x1, line.bounds.y0, line.bounds.y1)) {
+    if(utils.isBetweenBounds(x, y, line.bounds.x0, line.bounds.x1, line.bounds.y0, line.bounds.y1)) {
       return {
         index: i,
         line: line
+      };
+    }
+  };
+}
+
+function findClosestLetter(x, y, lines) {
+  var closestLine = findClosestLine(x, y, lines);
+
+  if(!closestLine) {
+    return null;
+  }
+
+  var letters = closestLine.line.letters;
+
+  for (var i = 0; i < letters.length; i++) {
+    var letter = letters[i];
+    if(utils.isBetweenBounds(x, y, letter.bounds.x0, letter.bounds.x1, letter.bounds.y0, letter.bounds.y1)) {
+      return {
+        index: i,
+        letter: letter,
+        line: closestLine
       };
     }
   };
@@ -56,30 +73,10 @@ function getSelectionText() {
   return selectionText.join('\n');
 }
 
-function findClosestLetter(x, y, lines) {
-  var closestLine = findClosestLine(x, y, lines);
-
-  if(!closestLine) {
-    return null;
-  }
-
-  var letters = closestLine.line.letters;
-
-  for (var i = 0; i < letters.length; i++) {
-    var letter = letters[i];
-    if(isBetweenBounds(x, y, letter.bounds.x0, letter.bounds.x1, letter.bounds.y0, letter.bounds.y1)) {
-      return {
-        index: i,
-        letter: letter,
-        line: closestLine
-      };
-    }
-  };
-}
-
 function mousemove(e){
-  if(lines){
-    var position = domUtils.getMousePosition(canvas, e);
+  var position = domUtils.getMousePosition(canvas, e);
+
+  if(me.lines){
 
     var closestLine = findClosestLine(position.x, position.y, lines);
     var closestLetter = findClosestLetter(position.x, position.y, lines);
@@ -89,7 +86,7 @@ function mousemove(e){
     }
 
     if(closestLetter) {
-      cbk(closestLetter.line.index, closestLetter.index, rst);
+      me.moveCallback(closestLetter.line.index, closestLetter.index);
       selection.end = {
         lineIndex: closestLetter.line.index,
         line: closestLetter.line.line,
@@ -99,7 +96,7 @@ function mousemove(e){
 
       if(isMouseDown) {
         drawSelection();
-        clipboard.setClipboard(getSelectionText());
+        // clipboard.setClipboard(getSelectionText());
       }
     }
   }
@@ -123,40 +120,11 @@ function mousedown(e){
 
 function mouseup(e){
   isMouseDown = false;
+  me.selectionCallback();
 }
 
 function setCursor(cursor){
   canvas.style.cursor = cursor;
-}
-
-function createContainerDiv(x, y) {
-  x = x || 0;
-  y = y || 0;
-
-  var container = document.createElement('div');
-  document.body.appendChild(container);
-  container.id = 'anbaric_selection_container';
-  container.style.position="absolute";
-  container.style.left = x + "px";
-  container.style.top = y + "px";
-  container.style.zIndex="1000";
-
-  return container;
-}
-
-function createCanvas(x, y, width, height) {
-  canvas = document.createElement('canvas');
-
-  canvas.style.position = 'absolute';
-  canvas.style.left = x + 'px';
-  canvas.style.top = y + 'px';
-  canvas.style.width = width + 'px';
-  canvas.style.height = height + 'px';
-
-  canvas.width = width;
-  canvas.height = height;
-
-  return canvas;
 }
 
 function drawSelection() {
@@ -210,20 +178,20 @@ function drawSelection() {
 }
 
 var self = {
-  foo: function (image, result, callback) {
-    rst = result;
-    lines = result.lines;
+  foo: function (image, lines, moveCallback, selectionCallback) {
+    me.lines = lines;
     img = image;
-    cbk = callback;
+    me.moveCallback = moveCallback;
+    me.selectionCallback = selectionCallback;
 
-    var container = createContainerDiv();
+    var container = domUtils.createContainerDiv();
     var imageClientRect = domUtils.getOffsetRect(image);
 
-    canvas = createCanvas(
-      imageClientRect.left,
-      imageClientRect.top,
+    canvas = domUtils.createCanvas(
       imageClientRect.width,
-      imageClientRect.height
+      imageClientRect.height,
+      imageClientRect.left,
+      imageClientRect.top
     );
     container.appendChild(canvas);
 

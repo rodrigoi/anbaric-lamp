@@ -28,7 +28,7 @@ function strokeWidthTransform(imageData, cannyImage, sobelImage, darkOnLight){
   letters = letterUtils.findLetters(strokeWidthMatrix, marker);
   lines = lineUtils.findLines(letters);
 
-  console.log(lines);
+  console.log('found ' + lines.length + ' lines');
 
   console.timeEnd('total processing time');
   console.groupEnd();

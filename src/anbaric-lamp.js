@@ -11,6 +11,7 @@ https://github.com/naptha/naptha.github.io
 import params from 'constants';
 import domUtils from 'dom-utils';
 import graphics from 'graphics';
+import clipboard from 'clipboard';
 
 import illuminator from 'illuminator';
 import swt from 'swt';
@@ -19,8 +20,6 @@ var debugCanvas;
 var debugContext;
 
 function drawDebugMatrix(matrix, lines) {
-  debugCanvas = domUtils.createCanvas(matrix.cols, matrix.rows);
-
   debugContext = debugCanvas.getContext('2d');
   var output = debugContext.createImageData(matrix.cols, matrix.rows);
 
@@ -53,7 +52,7 @@ function drawLine (line) {
   line.letters.forEach(drawLetter);
 }
 
-function drawLetter (letter) {
+function drawLetter (letter, color) {
   debugContext.beginPath();
   debugContext.rect(
     letter.bounds.x0,
@@ -62,26 +61,8 @@ function drawLetter (letter) {
     letter.bounds.y1 - letter.bounds.y0
   );
   debugContext.lineWidth = 1;
-  debugContext.strokeStyle = 'orange';
+  debugContext.strokeStyle = color || 'orange';
   debugContext.stroke();
-}
-
-function highlightLetter(line, letter, result) {
-  drawDebugMatrix(result);
-
-  var context = debugCanvas.getContext('2d');
-
-  //draw line bounding box
-  context.beginPath();
-  context.rect(
-    result.lines[line].letters[letter].bounds.x0,
-    result.lines[line].letters[letter].bounds.y0,
-    result.lines[line].letters[letter].bounds.x1 - result.lines[line].letters[letter].bounds.x0,
-    result.lines[line].letters[letter].bounds.y1 - result.lines[line].letters[letter].bounds.y0
-  );
-  context.lineWidth = 1;
-  context.strokeStyle = 'cyan';
-  context.stroke();
 }
 
 export default function (image, debugContainer) {
@@ -94,6 +75,7 @@ export default function (image, debugContainer) {
   var lines = swt.transform(imageData, cannyMatrix, sobelMatrix);
 
   if(debugContainer && cannyMatrix) {
+    debugCanvas = domUtils.createCanvas(imageData.width, imageData.height);
     drawDebugMatrix(cannyMatrix, lines);
     debugContainer.appendChild(debugCanvas);
   }
@@ -111,12 +93,52 @@ export default function (image, debugContainer) {
   //     }
   //   });
 
+  illuminator.foo(
+    image,
+    lines,
+    function (line, letter) {
+      if(debugContainer && cannyMatrix) {
+        drawDebugMatrix(cannyMatrix, lines);
+        drawLetter(lines[line].letters[letter], 'cyan');
+      }
+    },
+    function (selection) {
+      var selectionCanvas = domUtils.createCanvas(imageData.width, imageData.height);
+      var selectionContext = selectionCanvas.getContext('2d');
+      selectionContext.beginPath();
+
+      selectionContext.moveTo(75, 145);
+      selectionContext.lineTo(291, 145);
+      selectionContext.lineTo(291, 175);
+      selectionContext.lineTo(75, 175);
+      selectionContext.closePath();
+      selectionContext.clip();
+      selectionContext.drawImage(image, 0, 0);
+
+      var selectionData = selectionContext.getImageData(75, 145, 216, 30);
+
+      console.time('OCRAD processing');
+      var text = OCRAD(selectionData);
+      clipboard.setClipboard(text);
+      console.timeEnd('OCRAD processing');
+
+      debugContainer.appendChild(selectionCanvas);
+    });
+
+  console.time('OCRAD processing full source image');
+  var imageText = OCRAD(imageData);
+  console.timeEnd('OCRAD processing full source image');
+
   return {
     image: image,
     greyScale: greyScaleMatrix,
     sobel: sobelMatrix,
     canny: cannyMatrix,
     lines: lines,
-    OCR: OCRAD(imageData)
+    illuminator: illuminator,
+    debug: {
+      canvas: debugCanvas
+    },
+    OCR: imageText
   };
 }

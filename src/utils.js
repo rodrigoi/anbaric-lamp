@@ -1,5 +1,5 @@
 var self = {
-  zigometer: function(letters){
+  zigometer: function (letters){
     var verticalOverlap = 2; // this is the allowable vertical extent
 
     // cant calculate discrete 2nd deriv of 2 points
@@ -21,6 +21,9 @@ var self = {
       last = letters[i];
     }
     return sigddy;
+  },
+  isBetweenBounds: function (x, y, x0, x1, y0, y1){
+    return x >= x0 && x <= x1 && y >= y0 && y <= y1;
   },
   boxesIntersect: function(a, b){
     var width = Math.min(a.x1, b.x1) - Math.max(a.x0, b.x0);

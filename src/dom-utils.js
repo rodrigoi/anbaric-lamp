@@ -1,8 +1,32 @@
 var self = {
-  createCanvas: function (width, height) {
+  createContainerDiv: function (x, y) {
+    x = x || 0;
+    y = y || 0;
+
+    var container = document.createElement('div');
+    document.body.appendChild(container);
+
+    container.id = 'anbaric_selection_container';
+    container.style.position="absolute";
+    container.style.left = x + "px";
+    container.style.top = y + "px";
+    container.style.zIndex="1000";
+
+    return container;
+  },
+  createCanvas: function (width, height, x, y) {
     var canvas = document.createElement('canvas');
     canvas.width = width;
     canvas.height = height;
+
+    if(x && y) {
+      canvas.style.position = 'absolute';
+      canvas.style.left = x + 'px';
+      canvas.style.top = y + 'px';
+      canvas.style.width = width + 'px';
+      canvas.style.height = height + 'px';
+    }
+
     return canvas;
   },
   getOffsetRect: function (element) {
