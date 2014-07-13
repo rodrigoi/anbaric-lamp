@@ -162,10 +162,6 @@ export default function (image, debugContainer) {
       }
     });
 
-  // console.time('OCRAD processing full source image');
-  // var imageText = OCRAD(imageData);
-  // console.timeEnd('OCRAD processing full source image');
-
   return {
     image: image,
     greyScale: greyScaleMatrix,
@@ -175,7 +171,6 @@ export default function (image, debugContainer) {
     illuminator: illuminator,
     debug: {
       canvas: debugCanvas
-    }//,
-    // OCR: imageText
+    }
   };
 }

@@ -2,6 +2,7 @@
 
 var gulp = require('gulp');
 var plugins = require('gulp-load-plugins')();
+var mainBowerFiles = require('main-bower-files');
 var express = require('express');
 
 var pkg = require('./package.json');
@@ -31,7 +32,8 @@ var ports = {
 };
 
 gulp.task('scripts', function (){
-  gulp.src(paths.source)
+  return gulp
+    .src(paths.source)
     .pipe(plugins.plumber())
     // .pipe(plugins.jshint('.jshintrc'))
     // .pipe(plugins.jshint.reporter('default'))
@@ -44,7 +46,8 @@ gulp.task('scripts', function (){
 });
 
 gulp.task('vendor', function (){
-  plugins.bowerFiles()
+  return gulp
+    .src(mainBowerFiles())
     .pipe(plugins.concat('anbaric-lamp-vendor.js'))
     .pipe(gulp.dest(paths.build))
     // .pipe(plugins.rename({ suffix: '.min' }))
@@ -55,7 +58,7 @@ gulp.task('vendor', function (){
 gulp.task('clean', function (){
   return gulp
     .src(paths.build, {read:false})
-    .pipe(plugins.clean());
+    .pipe(plugins.rimraf());
 });
 
 gulp.task('watch', function (){
@@ -90,7 +93,8 @@ gulp.task('build', ['clean'], function (){
 });
 
 gulp.task('deploy', function (){
-  gulp.src(paths.source)
+  gulp
+    .src(paths.source)
     .pipe(plugins.ghPages());
 });
 
