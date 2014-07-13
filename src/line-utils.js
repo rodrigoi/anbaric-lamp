@@ -216,6 +216,19 @@ var self = {
 
     console.timeEnd('group letters on lines');
     return lines;
+  },
+  closestLine: function (x, y, lines) {
+    for (var i = 0; i < lines.length; i++) {
+      var line = lines[i];
+      if(utils.isBetweenBounds(x, y, line.bounds.x0, line.bounds.x1, line.bounds.y0, line.bounds.y1)) {
+        return {
+          index: i,
+          line: line
+        };
+      }
+    };
+
+    return null;
   }
 };
 

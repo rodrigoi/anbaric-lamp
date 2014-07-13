@@ -1,5 +1,6 @@
 import params from 'constants';
 import domUtils from 'dom-utils';
+import math from 'math';
 
 /*
 https://github.com/naptha/naptha.github.io/blob/master/js/swt-worker.js#L3381
@@ -100,6 +101,78 @@ var self = {
 
     console.timeEnd('create morphological dilation matrix from letters');
     return dilationMatrix;
+  },
+  crop: function (bounds, imageMatrix) {
+    var width  = bounds.x1 - bounds.x0;
+    var height = bounds.y1 - bounds.y0;
+    var cropMatrix = new jsfeat.matrix_t(width, height, jsfeat.U8C1_t);
+
+    for(var i = 0; i < width * height; i++) {
+      var point = math.indexToPoint(i, width);
+      cropMatrix.data[i] = imageMatrix.data[math.pointToIndex(
+        point.x + bounds.x0,
+        point.y + bounds.y0,
+        imageMatrix.cols
+      )];
+    }
+
+    return cropMatrix;
+  },
+  histogram: function (matrix) {
+    var histogram = [];
+    var i = 0;
+
+    for(; i < 256; ++i){
+      histogram[i] = 0;
+    }
+
+    for(i = 0; i < matrix.cols * matrix.rows; i++) {
+      histogram[matrix.data[i]]++;
+    }
+
+    return histogram;
+  },
+  /*
+  http://en.wikipedia.org/wiki/Otsu's_method#JavaScript_implementation
+  */
+  otsu: function (histogram, total) {
+    var sum = 0;
+    for (var i = 1; i < 256; ++i) {
+      sum += i * histogram[i];
+    }
+    var sumB = 0;
+    var wB = 0;
+    var wF = 0;
+    var mB;
+    var mF;
+    var max = 0.0;
+    var between = 0.0;
+    var threshold1 = 0.0;
+    var threshold2 = 0.0;
+
+    for (var i = 0; i < 256; ++i) {
+      wB += histogram[i];
+      if (wB == 0) {
+        continue;
+      }
+
+      wF = total - wB;
+      if (wF == 0) {
+        break;
+      }
+      sumB += i * histogram[i];
+      mB = sumB / wB;
+      mF = (sum - sumB) / wF;
+      between = wB * wF * Math.pow(mB - mF, 2);
+      if(between >= max) {
+        threshold1 = i;
+        if ( between > max ) {
+          threshold2 = i;
+        }
+        max = between;
+      }
+    }
+    return ( threshold1 + threshold2 ) / 2.0;
   }
 };
 

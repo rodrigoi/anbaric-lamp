@@ -288,6 +288,25 @@ var self = {
 
     console.timeEnd('find letters on matrix');
     return letters;
+  },
+  closestLetter: function(x, y, line) {
+    if(!line) {
+      return null;
+    }
+
+    var letters = line.letters;
+
+    for (var i = 0; i < letters.length; i++) {
+      var letter = letters[i];
+      if(utils.isBetweenBounds(x, y, letter.bounds.x0, letter.bounds.x1, letter.bounds.y0, letter.bounds.y1)) {
+        return {
+          index: i,
+          letter: letter
+        };
+      }
+    };
+
+    return null;
   }
 };
 

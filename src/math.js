@@ -1,4 +1,7 @@
 var self = {
+  pointToIndex: function (x, y, width) {
+    return x + y * width;
+  },
   indexToPoint: function (index, width) {
     return {
       x: index % width,
