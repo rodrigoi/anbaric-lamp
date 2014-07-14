@@ -9,8 +9,10 @@ var params = {
   thickness_ratio: 3,
   height_ratio: 2.5,
   width_ratio: 10,
-  scale: 1.3,
-  letter_occlude_thresh: 7
+  letter_occlude_thresh: 7,
+  alpha: 0.8,       //selection box alpha
+  color: '#CBDDF5', //selection box color
+  padding: 20       //padding in percentage of line height for selection box
 };
 
 export default params;

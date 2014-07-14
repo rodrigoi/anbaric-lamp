@@ -9,7 +9,8 @@
     "jsfeat": "*",
     "loader.js": "~1.0.0",
     "ocrad-bower": "*",
-    "heapqueue.js": "git@github.com:antimatter15/heapqueue.js.git"
+    "heapqueue.js": "git@github.com:antimatter15/heapqueue.js.git",
+    "graham_scan_js": "git@github.com:brian3kb/graham_scan_js.git"
   },
   "overrides": {
     "jsfeat": {
@@ -17,6 +18,9 @@
     },
     "heapqueue.js": {
       "main": "heapqueue.js"
+    },
+    "graham_scan_js": {
+      "main": "src/graham_scan.js"
     }
   }
 }

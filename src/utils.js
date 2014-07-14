@@ -1,4 +1,24 @@
+import selectionUtils from 'selection';
+
+import params from 'constants';
+
 var self = {
+  selectionToPolygon: function (selection, lines) {
+    var polygon = [];
+
+    selectionUtils.applySelection(
+      selection,
+      lines,
+      function (bounds) {
+        polygon.push({ x: bounds.x0,  y: bounds.y0 });
+        polygon.push({ x: bounds.x1,  y: bounds.y0 });
+        polygon.push({ x: bounds.x1,  y: bounds.y1 });
+        polygon.push({ x: bounds.x0,  y: bounds.y1 });
+      }
+    );
+
+    return polygon;
+  },
   zigometer: function (letters){
     var verticalOverlap = 2; // this is the allowable vertical extent
 
@@ -30,6 +50,27 @@ var self = {
     var height = Math.min(a.y1, b.y1) - Math.max(a.y0, b.y0);
     var min_area = Math.min((a.x1 - a.x0) * (a.y1 - a.y0), (b.x1 - b.x0) * (b.y1 - b.y0));
     return (width > 0 && height > 0) && (width * height) > 0.3 * min_area;
+  },
+  getPolygonBoundingBox: function (polygon) {
+    var x0 = polygon[0].x;
+    var y0 = polygon[0].y;
+    var x1 = polygon[0].x;
+    var y1 = polygon[0].y;
+
+    for(var i = 1; i < polygon.length; i++){
+      x0 = Math.min(x0, polygon[i].x);
+      y0 = Math.min(y0, polygon[i].y);
+      x1 = Math.max(x1, polygon[i].x);
+      y1 = Math.max(y1, polygon[i].y);
+    }
+    return {
+      x0: x0,
+      y0: y0,
+      x1: x1,
+      y1: y1,
+      width: x1 - x0,
+      height: y1 - y0
+    };
   },
   getBoundingBox: function(letters){
     var x0 = letters[0].bounds.x0;

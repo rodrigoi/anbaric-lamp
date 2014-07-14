@@ -1,4 +1,37 @@
 var self = {
+  translatePolygon: function(polygon, offset) {
+    for (var i = 0; i < polygon.length; i++) {
+      polygon[i].index = i;
+      polygon[i].x -= offset.x;
+      polygon[i].y -= offset.y;
+    }
+  },
+  /*
+  http://en.wikipedia.org/wiki/Point_in_polygon
+  ray-casting algorithm based on
+  http://www.ecse.rpi.edu/Homepages/wrf/Research/Short_Notes/pnpoly.html
+  */
+  pointInPolygon: function (point, polygon) {
+    var x = point.x;
+    var y = point.y;
+    var inside = false;
+
+    for (var i = 0, j = polygon.length - 1; i < polygon.length; j = i++) {
+      var xi = polygon[i].x;
+      var yi = polygon[i].y;
+      var xj = polygon[j].x;
+      var yj = polygon[j].y;
+
+      var intersect = ((yi > y) != (yj > y))
+        && (x < (xj - xi) * (y - yi) / (yj - yi) + xi);
+
+      if (intersect){
+        inside = !inside;
+      }
+    }
+
+    return inside;
+  },
   pointToIndex: function (x, y, width) {
     return x + y * width;
   },
