@@ -77,7 +77,7 @@ gulp.task('connect', function (){
   var demo = express();
   demo
     .use(require('morgan')('dev'))
-    .use(require('connect-livereload')({port: ports.livereload}))
+    //.use(require('connect-livereload')({port: ports.livereload}))
     .use(express.static(paths.demo))
     .use(express.static(paths.build))
     .use('/bower_components', express.static('./bower_components'))

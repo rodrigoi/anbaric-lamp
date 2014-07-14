@@ -6,6 +6,10 @@ import selectionUtils from 'selection';
 
 import params from 'constants';
 
+function Illuminator(){
+  
+}
+
 var me = this;
 
 var canvas;

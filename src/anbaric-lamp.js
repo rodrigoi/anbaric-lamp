@@ -14,6 +14,7 @@ import utils from 'utils';
 import domUtils from 'dom-utils';
 import graphics from 'graphics';
 import clipboard from 'clipboard';
+import selectionUtils from 'selection';
 
 import illuminator from 'illuminator';
 import swt from 'swt';
@@ -129,161 +130,24 @@ export default function (image, debugContainer) {
       }
     },
     function (selection) {
-      var polygon = utils.selectionToPolygon(selection, lines);
-      var box = utils.getPolygonBoundingBox(polygon);
+      var polygon = selectionUtils.selectionToPolygon(selection, lines);
+      var regions = selectionUtils.selectionToRegions(selection, lines);
 
+      var box = utils.getPolygonBoundingBox(polygon);
       var crop = graphics.crop(box, greyScaleMatrix);
+
+      math.translatePolygon(polygon, { x: box.x0, y: box.y0 });
+      math.translateRegions(regions, { x: box.x0, y: box.y0 });
 
       var histogram = graphics.histogram(crop);
       var otsu = graphics.otsu(histogram, crop.cols * crop.rows);
-
-      math.translatePolygon(polygon, {
-        x: box.x0,
-        y: box.y0
-      });
-
-
-      var consoleTable = [];
-
-
-      var center = {
-        x: (box.x1 - box.x0) / 2,
-        y: (box.y1 - box.y0) / 2
-      };
-      polygon.sort(function (a, b){
-        var atanA = Math.atan2((a.y - center.y),(a.x - center.x));
-        var atanB = Math.atan2((b.y - center.y),(b.x - center.x));
-
-        consoleTable.push({
-          "a-index": a.index,
-          "b-index": b.index,
-          "atan-a": atanA,
-          "atan-b": atanB,
-          "diff": atanA - atanB});
-
-        var d = atanA - atanB;
-        if(Math.abs(d) > 0.1) {
-          return d;
-        }
-
-        var d1 = (a.x - center.x) * (a.x - center.x) + (a.y - center.y) * (a.y - center.y);
-        var d2 = (b.x - center.x) * (b.x - center.x) + (b.y - center.y) * (b.y - center.y);
-        return d2 - d1;
-      });
-
-
-      // var topLeftVertex = polygon[0];
-      // polygon.sort(function (a, b){
-      //   var atanA = Math.atan2((a.y - topLeftVertex.y),(a.x - topLeftVertex.x));
-      //   var atanB = Math.atan2((b.y - topLeftVertex.y),(b.x - topLeftVertex.x));
-
-      //   consoleTable.push({
-      //     "a-index": a.index,
-      //     "b-index": b.index,
-      //     "atan-a": atanA,
-      //     "atan-b": atanB,
-      //     "diff": atanA - atanB});
-
-      //   if(a.x >= topLeftVertex.x && b.x >= topLeftVertex.x) {
-      //     return atanA - atanB;
-      //   }
-      //   console.log(a.index, b.index);
-      //   return atanB - atanA;
-      // });
-
-      console.table(consoleTable);
-
-      // var topLeftVertex = polygon[0];
-      // polygon.sort(function (a, b){
-      //   var aTanA = Math.atan2((a.y - topLeftVertex.y),(a.x - topLeftVertex.x));
-      //   var aTanB = Math.atan2((b.y - topLeftVertex.y),(b.x - topLeftVertex.x));
-
-      //   if (aTanA < aTanB) return -1;
-      //   else if (aTanB < aTanA) return 1;
-      //   return 0;
-      // });
-      // var center = {
-      //   x: (box.x1 - box.x0) / 2,
-      //   y: (box.y1 - box.y0) / 2
-      // };
-      // polygon.sort(function (a, b) {
-      //   if (a.x - center.x >= 0 && b.x - center.x < 0) {
-      //     return true;
-      //   }
-      //   if (a.x - center.x < 0 && b.x - center.x >= 0) {
-      //     return false;
-      //   }
-      //   if (a.x - center.x == 0 && b.x - center.x == 0) {
-      //     if (a.y - center.y >= 0 || b.y - center.y >= 0) {
-      //       return a.y > b.y;
-      //     }
-      //     return b.y > a.y;
-      //   }
-
-      //   // compute the cross product of vectors (center -> a) x (center -> b)
-      //   var det = (a.x - center.x) * (b.y - center.y) - (b.x - center.x) * (a.y - center.y);
-      //   if (det < 0) {
-      //     return true;
-      //   }
-      //   if (det > 0) {
-      //     return false;
-      //   }
-
-      //   // points a and b are on the same line from the center
-      //   // check which point is closer to the center
-      //   var d1 = (a.x - center.x) * (a.x - center.x) + (a.y - center.y) * (a.y - center.y);
-      //   var d2 = (b.x - center.x) * (b.x - center.x) + (b.y - center.y) * (b.y - center.y);
-      //   return d1 > d2;
-      // });
-
-
-      // var center = {
-      //   x: (box.x1 - box.x0) / 2,
-      //   y: (box.y1 - box.y0) / 2
-      // };
-      // polygon.sort(function (a, b) {
-      //   if (a.x - center.x >= 0 && b.x - center.x < 0) {
-      //     return -1;
-      //   }
-      //   if (a.x - center.x < 0 && b.x - center.x >= 0) {
-      //     return 1;
-      //   }
-      //   // if (a.x - center.x == 0 && b.x - center.x == 0) {
-      //   //   if (a.y - center.y >= 0 || b.y - center.y >= 0) {
-      //   //     return a.y - b.y;
-      //   //   }
-      //   //   return b.y - a.y;
-      //   // }
-
-      //   // compute the cross product of vectors (center -> a) x (center -> b)
-      //   // var det = (a.x - center.x) * (b.y - center.y) - (b.x - center.x) * (a.y - center.y);
-      //   // return det;
-
-      //   // points a and b are on the same line from the center
-      //   // check which point is closer to the center
-      //   var d1 = (a.x - center.x) * (a.x - center.x) + (a.y - center.y) * (a.y - center.y);
-      //   var d2 = (b.x - center.x) * (b.x - center.x) + (b.y - center.y) * (b.y - center.y);
-
-      //   return d1 - d2;
-      // });
-
-
-
-
-      // var convexHull = new ConvexHullGrahamScan();
-      // polygon.forEach(function (vertex) {
-      //   convexHull.addPoint(vertex.x, vertex.y);
-      // });
-
-      // var hullPoints = convexHull.getHull();
-
-
       for(var i = 0; i < crop.cols * crop.rows; i++) {
         var point = math.indexToPoint(i, crop.cols);
-        if(math.pointInPolygon(point, polygon)) {
+//         if(math.pointInPolygon(point, polygon)) {
+        if(math.pointInRegions(point, regions)) {
           crop.data[i] = crop.data[i] > otsu ? 255 : 0;
         } else {
-          crop.data[i] = 120;
+          crop.data[i] = 255;
         }
       }
 

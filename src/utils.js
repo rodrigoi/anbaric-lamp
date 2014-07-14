@@ -1,24 +1,6 @@
-import selectionUtils from 'selection';
-
 import params from 'constants';
 
 var self = {
-  selectionToPolygon: function (selection, lines) {
-    var polygon = [];
-
-    selectionUtils.applySelection(
-      selection,
-      lines,
-      function (bounds) {
-        polygon.push({ x: bounds.x0,  y: bounds.y0 });
-        polygon.push({ x: bounds.x1,  y: bounds.y0 });
-        polygon.push({ x: bounds.x1,  y: bounds.y1 });
-        polygon.push({ x: bounds.x0,  y: bounds.y1 });
-      }
-    );
-
-    return polygon;
-  },
   zigometer: function (letters){
     var verticalOverlap = 2; // this is the allowable vertical extent
 

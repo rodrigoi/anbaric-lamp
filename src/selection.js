@@ -1,6 +1,33 @@
 import params from 'constants';
 
 var self= {
+  selectionToRegions: function (selection, lines) {
+    var regions = [];
+    self.applySelection(
+      selection,
+      lines,
+      function (bounds) {
+        regions.push(bounds);
+      }
+    );
+    return regions;
+  },
+  selectionToPolygon: function (selection, lines) {
+    var polygon = [];
+
+    self.applySelection(
+      selection,
+      lines,
+      function (bounds) {
+        polygon.push({ x: bounds.x0,  y: bounds.y0 });
+        polygon.push({ x: bounds.x1,  y: bounds.y0 });
+        polygon.push({ x: bounds.x1,  y: bounds.y1 });
+        polygon.push({ x: bounds.x0,  y: bounds.y1 });
+      }
+    );
+
+    return polygon;
+  },
   applySelection: function (selection, lines, callback) {
     if(!selection.start && !selection.end && typeof(callback) !== 'function') {
       return;
