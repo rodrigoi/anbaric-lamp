@@ -161,7 +161,14 @@ export default function (image, debugContainer) {
           "atan-b": atanB,
           "diff": atanA - atanB});
 
-        return atanA - atanB;
+        var d = atanA - atanB;
+        if(Math.abs(d) > 0.1) {
+          return d;
+        }
+
+        var d1 = (a.x - center.x) * (a.x - center.x) + (a.y - center.y) * (a.y - center.y);
+        var d2 = (b.x - center.x) * (b.x - center.x) + (b.y - center.y) * (b.y - center.y);
+        return d2 - d1;
       });
 
 
