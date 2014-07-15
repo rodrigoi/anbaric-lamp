@@ -62,19 +62,21 @@ gulp.task('clean', function (){
 });
 
 gulp.task('watch', function (){
-  gulp.watch(paths.source, ['scripts']);
+  // gulp.watch(paths.source, ['scripts']);
 
-  var lr = plugins.livereload();
+  // var lr = plugins.livereload();
 
-  gulp.watch([
-    paths.build + '**',
-    paths.demo + '**/*.html'
-  ]).on('change', function(file){
-    lr.changed(file.path);
-  });
+  // gulp.watch([
+  //   paths.build + '**',
+  //   paths.demo + '**/*.html'
+  // ]).on('change', function(file){
+  //   lr.changed(file.path);
+  // });
 });
 
 gulp.task('connect', function (){
+  plugins.livereload.listen();
+
   var demo = express();
   demo
     .use(require('morgan')('dev'))

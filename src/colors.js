@@ -5,7 +5,6 @@ http://www.easyrgb.com/index.php?X=MATH&H=02#text2
 XYZ -> CIE-L*ab
 http://www.easyrgb.com/index.php?X=MATH&H=07#text7
 */
-
 var self = {
   labFromImageData: function (index, imageData) {
     return self.rgbTolab([
