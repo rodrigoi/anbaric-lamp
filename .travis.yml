@@ -1,6 +1,18 @@
 language: node_js
 node_js:
-  - "0.10"
+- '0.10'
 before_script:
-  - npm install -g gulp
-  - npm update
+- npm install -g gulp
+- npm update
+script:
+- 
+deploy:
+  provider: s3
+  access_key_id: AKIAJUYNPPWIROK33BJA
+  secret_access_key:
+    secure: YDQSMHfOinnhV95lT0FJ6QAhi5OCnQ5C9F0XJfNtrLrjJ0aZElo3AG5awO0Xm+AHo7IP7D3WZ9h6xpmC5RtHZpBSG0vuXJ4Tijpn9bXvxO1rtDTggRaTDUrukqkrj4tD87IDUhKI6sjJawaRyg3wW6RBeb/cbPNKgQGbx0U2Il0=
+  bucket: rodrigoi
+  local-dir: demo
+  upload-dir: anbaric-lamp
+  on:
+    repo: rodrigoi/anbaric-lamp
