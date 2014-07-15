@@ -56,10 +56,10 @@ var self = {
     return {
       x: event.clientX - rect.left,
       y: event.clientY - rect.top
-    }
+    };
   },
   nodeName: function (node, name) {
-    return !!(node.nodeName.toLowerCase() === name);
+    return (node.nodeName.toLowerCase() === name);
   }
 };
 

@@ -36,7 +36,7 @@ function differentiate (regions, dilationMatrix) {
     for(var b = regions[a].letters.length - 1; b >= 0; b--){
       var c = regions[a].letters[b].contours;
       for(var i = c.length - 1; i >= 0; i--){
-        dilationMatrix.data[c[i]] = 2
+        dilationMatrix.data[c[i]] = 2;
       }
     }
   }
@@ -137,7 +137,8 @@ var self = {
   */
   otsu: function (histogram, total) {
     var sum = 0;
-    for (var i = 1; i < 256; ++i) {
+    var i = 1;
+    for (; i < 256; ++i) {
       sum += i * histogram[i];
     }
     var sumB = 0;
@@ -150,14 +151,14 @@ var self = {
     var threshold1 = 0.0;
     var threshold2 = 0.0;
 
-    for (var i = 0; i < 256; ++i) {
+    for (i = 0; i < 256; ++i) {
       wB += histogram[i];
-      if (wB == 0) {
+      if (wB === 0) {
         continue;
       }
 
       wF = total - wB;
-      if (wF == 0) {
+      if (wF === 0) {
         break;
       }
       sumB += i * histogram[i];

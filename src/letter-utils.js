@@ -105,25 +105,25 @@ function connectedComponentsByPriority(masked){
   var marker = new jsfeat.matrix_t(width, height, jsfeat.U8C1_t);
   var contours = [];
 
-  var big_queue = new HeapQueue(function (b, a){
+  function compareData (b, a){
     return masked.data[a] - masked.data[b];
-  });
+  }
+  var big_queue = new HeapQueue(compareData);
 
-  for(var i = 0; i < width * height; i++){
+  var i = 0;
+  for(; i < width * height; i++){
     if(masked.data[i]){
       big_queue.push(i);
     }
   }
 
   while(big_queue.length){
-    var i = big_queue.pop();
+    i = big_queue.pop();
     if(marker.data[i] || !masked.data[i]){ continue; }
 
     marker.data[i] = 1;
     var contour = [];
-    var stack = new HeapQueue(function(b, a){
-      return masked.data[a] - masked.data[b];
-    });
+    var stack = new HeapQueue(compareData);
     stack.push(i);
     var w = masked.data[i];
 
@@ -183,11 +183,12 @@ function contourToLetter(strokeWidthMatrix, points){
   var swtsum = 0;
   var swtvar = 0;
   var swts = [];
-  var marksum = 0;
   var y_coords = [];
 
-  for(var i = 0; i < size; i++){
-    var p = points[i];
+  var p;
+  var i = 0;
+  for(; i < size; i++){
+    p = points[i];
     var x = p % width;
     var y = Math.floor(p / width);
 
@@ -210,8 +211,8 @@ function contourToLetter(strokeWidthMatrix, points){
 
   var mean = swtsum / size;
 
-  for(var i = 0; i < size; i++){
-    var p = points[i];
+  for(i = 0; i < size; i++){
+    p = points[i];
     swtvar += (strokeWidthMatrix.data[p] - mean) * (strokeWidthMatrix.data[p] - mean);
   }
   var xc = m10 / size, yc = m01 / size;
@@ -304,7 +305,7 @@ var self = {
           letter: letter
         };
       }
-    };
+    }
 
     return null;
   }

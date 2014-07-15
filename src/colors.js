@@ -57,8 +57,6 @@ var self = {
       y: 20
     };
 
-    var labtab = {};
-
     var marker = new jsfeat.matrix_t(width, height, jsfeat.U8C1_t);
 
     //for every region
@@ -75,13 +73,17 @@ var self = {
         y1: Math.min(height, region.bounds.y1 + padding.y)
       };
 
-      for(var x = bounds.x0; x < bounds.x1; x++) {
-        for (var y = bounds.y0; y < bounds.y1; y++) {
+      var color;
+      var x = bounds.x0;
+      var y;
+      for(; x < bounds.x1; x++) {
+        y = bounds.y0;
+        for (; y < bounds.y1; y++) {
 
           var index = x + y * width;
           var lab = self.labFromImageData(index, imageData);
 
-          var color = Math.round((2 * lab[0] + 40) / 16) |
+          color = Math.round((2 * lab[0] + 40) / 16) |
             Math.round((lab[1] + 128) / 16) << 4 |
             Math.round((lab[2] + 128) / 16) << 8;
 
@@ -106,10 +108,10 @@ var self = {
         }
       }
 
-      for(var y = bounds.y0; y < bounds.y1; y++){
-        for(var x = bounds.x0; x < bounds.x1; x++){
+      for(y = bounds.y0; y < bounds.y1; y++){
+        for(x = bounds.x0; x < bounds.x1; x++){
           var p = x + y * width;
-          var color = pixelMap[p];
+          color = pixelMap[p];
           if(intoct[color] / (1 + extoct[color]) > 3){
             marker.data[p] = Math.min(255, 2 * (intoct[color] / (1 + extoct[color])));
           }

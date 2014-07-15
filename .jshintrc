@@ -1,11 +1,16 @@
 {
   "predef": {
+    "Uint16Array": true,
+    "Uint32Array": true,
     "console": true,
     "document": true,
     "window": true,
     "location": true,
     "setTimeout": true,
-    "jsfeat": true
+    "jsfeat": true,
+    "Delaunay": true,
+    "HeapQueue": true,
+    "OCRAD": true
   },
   "node" : false,
   "browser" : false,

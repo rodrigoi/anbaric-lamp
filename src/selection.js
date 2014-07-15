@@ -94,7 +94,7 @@ var self= {
         y0: Math.floor(bottomLine.bounds.y0 - padding),
         x1: Math.floor(bottomLetter.bounds.x1 + 2 * padding),
         y1: Math.floor(bottomLine.bounds.y1 + 2 * padding)
-      })
+      });
     }
   }
 };

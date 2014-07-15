@@ -10,9 +10,7 @@
     "loader.js": "~1.0.0",
     "ocrad-bower": "*",
     "heapqueue.js": "git@github.com:antimatter15/heapqueue.js.git",
-    "graham_scan_js": "git@github.com:brian3kb/graham_scan_js.git",
-    "delaunay": "git@github.com:ironwallaby/delaunay.git",
-    "d3": "~3.4.10"
+    "delaunay": "git@github.com:ironwallaby/delaunay.git"
   },
   "overrides": {
     "jsfeat": {

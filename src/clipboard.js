@@ -14,7 +14,6 @@ var container;
 var containerId = textAreaId + '-container';
 
 function keyDown (event){
-  var code = event.keyCode || event.which;
   if(!(event.ctrlKey || event.metaKey)) {
     return;
   }
@@ -58,7 +57,7 @@ function keyDown (event){
 }
 function keyUp (event){
   var code = event.keyCode || event.which;
-  if(event.target.id != textAreaId || code !== 67) {
+  if(event.target.id !== textAreaId || code !== 67) {
     return;
   }
   container.style.display = 'none';

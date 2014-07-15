@@ -22,8 +22,8 @@ gulp.src('./foo/*.js')
 
 var paths = {
   source: 'src/**/*.js',
-  demo: './demo',
-  build: './build/'
+  demo:   './demo',
+  build:  './build/'
 };
 
 var ports = {
@@ -35,21 +35,21 @@ gulp.task('scripts', function (){
   return gulp
     .src(paths.source)
     .pipe(plugins.plumber())
-    // .pipe(plugins.jshint('.jshintrc'))
-    // .pipe(plugins.jshint.reporter('default'))
+    .pipe(plugins.jshint('.jshintrc'))
+    .pipe(plugins.jshint.reporter('default'))
     .pipe(plugins.es6ModuleTranspiler({type: 'amd'}))
     .pipe(plugins.concat('anbaric-lamp.js'))
     .pipe(gulp.dest(paths.build))
-    // .pipe(plugins.rename({ suffix: '.min' }))
-    // .pipe(plugins.uglify())
-    // .pipe(gulp.dest(paths.build));
+    .pipe(plugins.rename({ suffix: '.min' }))
+    .pipe(plugins.uglify())
+    .pipe(gulp.dest(paths.build));
 });
 
 gulp.task('vendor', function (){
   return gulp
     .src(mainBowerFiles())
     .pipe(plugins.concat('anbaric-lamp-vendor.js'))
-    .pipe(gulp.dest(paths.build))
+    .pipe(gulp.dest(paths.build));
     // .pipe(plugins.rename({ suffix: '.min' }))
     // .pipe(plugins.uglify())
     // .pipe(gulp.dest(paths.build));
@@ -65,6 +65,7 @@ gulp.task('watch', function (){
   gulp.watch(paths.source, ['scripts']);
 
   var lr = plugins.livereload();
+
   gulp.watch([
     paths.build + '**',
     paths.demo + '**/*.html'
@@ -77,7 +78,7 @@ gulp.task('connect', function (){
   var demo = express();
   demo
     .use(require('morgan')('dev'))
-    //.use(require('connect-livereload')({port: ports.livereload}))
+    .use(require('connect-livereload')({port: ports.livereload}))
     .use(express.static(paths.demo))
     .use(express.static(paths.build))
     .use('/bower_components', express.static('./bower_components'))

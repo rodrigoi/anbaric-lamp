@@ -1,19 +1,11 @@
 import domUtils from 'dom-utils';
 import lineUtils from 'line-utils';
 import letterUtils from 'letter-utils';
-import utils from 'utils';
 import selectionUtils from 'selection';
 
 import params from 'constants';
 
-function Illuminator(){
-  
-}
-
-var me = this;
-
 var canvas;
-var context;
 var selection = {};
 var isMouseDown = false;
 
@@ -48,85 +40,82 @@ function drawSelection(lines) {
   context.fill();
 }
 
-var self = {
-  foo: function (image, lines, moveCallback, selectionCallback) {
-    me.lines = lines;
-    me.moveCallback = moveCallback;
-    me.selectionCallback = selectionCallback;
+export default function (image, lines, moveCallback, selectionCallback) {
+  var container = domUtils.createContainerDiv();
+  var imageClientRect = domUtils.getOffsetRect(image);
 
-    var container = domUtils.createContainerDiv();
-    var imageClientRect = domUtils.getOffsetRect(image);
+  canvas = domUtils.createCanvas(
+    imageClientRect.width,
+    imageClientRect.height,
+    imageClientRect.left,
+    imageClientRect.top
+  );
+  container.appendChild(canvas);
 
-    canvas = domUtils.createCanvas(
-      imageClientRect.width,
-      imageClientRect.height,
-      imageClientRect.left,
-      imageClientRect.top
-    );
-    container.appendChild(canvas);
+  canvas.addEventListener('mousemove', function (e) {
+    var position = domUtils.getMousePosition(canvas, e);
 
-    canvas.addEventListener('mousemove', function (e) {
-      var position = domUtils.getMousePosition(canvas, e);
+    var closestLine = lineUtils.closestLine(position.x, position.y, lines);
+    var closestLetter;
 
-      var closestLine = lineUtils.closestLine(position.x, position.y, lines);
-      var closestLetter;
+    if(closestLine){
+      setCursor(closestLine ? 'text' : 'default');
+      closestLetter =  letterUtils.closestLetter(position.x, position.y, closestLine.line);
+    }
 
-      if(closestLine){
-        setCursor(closestLine ? 'text' : 'default');
-        closestLetter =  letterUtils.closestLetter(position.x, position.y, closestLine.line);
+    if(closestLetter) {
+      moveCallback(closestLine.index, closestLetter.index);
+      selection.end = {
+        line:   closestLine.index,
+        letter: closestLetter.index
+      };
+      if(isMouseDown && selection.start && selection.end) {
+        drawSelection(lines);
       }
+    }
+  }, true);
 
-      if(closestLetter) {
-        me.moveCallback(closestLine.index, closestLetter.index);
-        selection.end = {
-          line:   closestLine.index,
-          letter: closestLetter.index
-        }
-        if(isMouseDown && selection.start && selection.end) {
-          drawSelection(lines);
-        }
-      }
-    }, true);
+  canvas.addEventListener('mousedown', function (e) {
+    var position = domUtils.getMousePosition(canvas, e);
 
-    canvas.addEventListener('mousedown', function (e) {
-      var position = domUtils.getMousePosition(canvas, e);
+    var closestLine = lineUtils.closestLine(position.x, position.y, lines);
+    var closestLetter;
 
-      var closestLine = lineUtils.closestLine(position.x, position.y, lines);
-      var closestLetter;
+    if(closestLine){
+      closestLetter =  letterUtils.closestLetter(position.x, position.y, closestLine.line);
+    }
 
-      if(closestLine){
-        closestLetter =  letterUtils.closestLetter(position.x, position.y, closestLine.line);
-      }
+    if(closestLetter) {
+      selection.start = {
+        line:   closestLine.index,
+        letter: closestLetter.index
+      };
+    }
 
-      if(closestLetter) {
-        selection.start = {
-          line:   closestLine.index,
-          letter: closestLetter.index
-        };
-      }
+    isMouseDown = true;
+  }, true);
 
-      isMouseDown = true;
-    }, true);
+  canvas.addEventListener('mouseup', function () {
+    isMouseDown = false;
+    if(selection.start && selection.end) {
+      selectionCallback(selection);
+    }
+  }, true);
 
-    canvas.addEventListener('mouseup', function (e) {
-      isMouseDown = false;
-      if(selection.start && selection.end) {
-        me.selectionCallback(selection);
-      }
-    }, true);
+  // selection = {
+  //   start: {
+  //     line: 0,
+  //     letter: 1
+  //   },
+  //   end: {
+  //     line: 1,
+  //     letter: 15
+  //   }
+  // };
+  // selectionCallback(selection);
 
-    selection = {
-      start: {
-        line: 0,
-        letter: 1
-      },
-      end: {
-        line: 1,
-        letter: 15
-      }
-    };
-    selectionCallback(selection);
-  }
-};
-
-export default self;
+  return {
+    container: container,
+    canvas: canvas
+  };
+}

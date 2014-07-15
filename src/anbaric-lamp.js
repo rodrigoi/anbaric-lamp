@@ -6,9 +6,9 @@ https://github.com/aperrau/DetectText/blob/master/TextDetection.cpp
 https://github.com/JasonAltschuler/Otsu
 https://github.com/adamhooper/js-priority-queue
 https://github.com/naptha/naptha.github.io
+http://www.m.cs.osakafu-u.ac.jp/cbdar2007/proceedings/papers/O1-1.pdf
 */
 
-import params from 'constants';
 import math from 'math';
 import utils from 'utils';
 import domUtils from 'dom-utils';
@@ -71,7 +71,7 @@ function drawLetter (letter, color) {
 function OCR (matrix) {
   var selectionCanvas = domUtils.createCanvas(matrix.cols, matrix.rows);
   var selectionContext = selectionCanvas.getContext('2d');
-  var selectionOutput = debugContext.createImageData(matrix.cols, matrix.rows);
+  var selectionOutput = selectionContext.createImageData(matrix.cols, matrix.rows);
 
   for(var i = 0; i < matrix.cols * matrix.rows; i++) {
     selectionOutput.data[i * 4 + 3] = 255;
@@ -87,7 +87,7 @@ function OCR (matrix) {
   var text = OCRAD(selectionOutput);
   console.timeEnd('OCRAD processing');
 
-  return text.replace(/^\s*[\r\n]/gm, '');
+  return text;
 }
 
 export default function (image, debugContainer) {
@@ -120,7 +120,7 @@ export default function (image, debugContainer) {
   //     }
   //   });
 
-  illuminator.foo(
+  illuminator(
     image,
     lines,
     function (line, letter) {

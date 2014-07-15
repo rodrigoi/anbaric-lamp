@@ -1,7 +1,5 @@
 import params from 'constants';
-
 import utils from "utils";
-import math from "math";
 
 function checkDimensionRatio (a, b, dimension, ratio) {
   var max = Math.max(a.dimensions[dimension], a.dimensions[dimension]);
@@ -82,16 +80,15 @@ function pairLetters (letters) {
       }
     }
 
-    pairs.sort(function(a, b){
-      return a.dist - b.dist;
-    });
+    pairs.sort(utils.compareDistance);
   }
   return pairs;
 }
 
 function groupLetters (letters, pairs) {
   var groups = [];
-  for(var i = 0; i < letters.length; i++){
+  var i = 0;
+  for(; i < letters.length; i++){
     var letter = letters[i];
     letter.group = groups.length;
     groups.push({
@@ -138,7 +135,7 @@ function groupLetters (letters, pairs) {
         if(ratio > 1.5 + 10 / Math.max(leftLetters.length, rightLetters.length)) continue;
       }
 
-      for(var i = 0; i < leftLetters.length; i++){
+      for(i = 0; i < leftLetters.length; i++){
         leftLetters[i].group = rightGroup;
       }
 
@@ -160,8 +157,10 @@ function contourToLine(letters){
   var x1 = 0;
   var y1 = 0;
 
-  for(var i = 0; i < letters.length; i++){
-    var letter = letters[i];
+  var letter;
+  var i = 0;
+  for(; i < letters.length; i++){
+    letter = letters[i];
     x0 = Math.min(x0, letter.bounds.x0);
     y0 = Math.min(y0, letter.bounds.y0);
     x1 = Math.max(x1, letter.bounds.x1);
@@ -172,8 +171,8 @@ function contourToLine(letters){
   var cy = y0 / 2 + y1 / 2;
 
   var st = 0;
-  for(var i = 0; i < letters.length; i++){
-    var letter = letters[i];
+  for(i = 0; i < letters.length; i++){
+    letter = letters[i];
     st += letter.thickness;
   }
 
@@ -194,7 +193,7 @@ function contourToLine(letters){
     },
     letters: letters
   };
-};
+}
 
 var self = {
   findLines: function (letters){
@@ -226,7 +225,7 @@ var self = {
           line: line
         };
       }
-    };
+    }
 
     return null;
   }

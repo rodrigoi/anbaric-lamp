@@ -4,10 +4,9 @@ import math from 'math';
 import lineUtils from 'line-utils';
 import letterUtils from 'letter-utils';
 import colors from 'colors';
-import utils from 'utils';
 import graphics from 'graphics';
 
-import mocks from 'mocks';
+//import mocks from 'mocks';
 
 function strokeWidthTransform(imageData, cannyImage, sobelImage, darkOnLight){
   console.group(darkOnLight ? 'dark on light' : 'light on dark');

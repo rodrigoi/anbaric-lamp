@@ -1,5 +1,3 @@
-import params from 'constants';
-
 var self = {
   zigometer: function (letters){
     var verticalOverlap = 2; // this is the allowable vertical extent
@@ -7,7 +5,7 @@ var self = {
     // cant calculate discrete 2nd deriv of 2 points
     if(letters.length < 3) {
       return 0;
-    };
+    }
 
     letters.sort(self.compareXCenter);
 
@@ -86,6 +84,9 @@ var self = {
   },
   compareYCenter: function (a, b) {
     return a.center.y - b.center.y;
+  },
+  compareDistance: function (a, b) {
+    return a.dist - b.dist;
   },
   getHeight: function (a) {
     return a.dimensions.height;

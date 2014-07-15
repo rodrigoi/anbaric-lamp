@@ -97,8 +97,7 @@ var self = {
       var xj = polygon[j].x;
       var yj = polygon[j].y;
 
-      var intersect = ((yi > y) != (yj > y))
-        && (x < (xj - xi) * (y - yi) / (yj - yi) + xi);
+      var intersect = ((yi > y) !== (yj > y)) && (x < (xj - xi) * (y - yi) / (yj - yi) + xi);
 
       if (intersect){
         inside = !inside;
