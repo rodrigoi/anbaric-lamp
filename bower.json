@@ -10,7 +10,8 @@
     "loader.js": "~1.0.0",
     "ocrad-bower": "*",
     "heapqueue.js": "https://github.com/antimatter15/heapqueue.js.git",
-    "delaunay": "https://github.com/ironwallaby/delaunay.git"
+    "delaunay": "https://github.com/ironwallaby/delaunay.git",
+    "handlebars.js": "~1.3.0"
   },
   "overrides": {
     "jsfeat": {

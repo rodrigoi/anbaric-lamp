@@ -103,6 +103,7 @@ export default function (image, debugContainer) {
     console.time('drawing debug matrix');
     debugCanvas = domUtils.createCanvas(greyScaleMatrix.cols, greyScaleMatrix.rows);
     drawDebugMatrix(cannyMatrix, lines);
+    debugCanvas.className = 'center-block';
     debugContainer.appendChild(debugCanvas);
     console.timeEnd('drawing debug matrix');
   }
