@@ -23,7 +23,8 @@ gulp.src('./foo/*.js')
 var paths = {
   source: 'src/**/*.js',
   demo:   './demo',
-  build:  './build/'
+  build:  './build/',
+  dist:   './dist/'
 };
 
 var ports = {
@@ -32,7 +33,7 @@ var ports = {
 };
 
 gulp.task('scripts', function (){
-  return gulp
+  gulp
     .src(paths.source)
     .pipe(plugins.plumber())
     .pipe(plugins.jshint('.jshintrc'))
@@ -46,7 +47,7 @@ gulp.task('scripts', function (){
 });
 
 gulp.task('vendor', function (){
-  return gulp
+  gulp
     .src(mainBowerFiles())
     .pipe(plugins.concat('anbaric-lamp-vendor.js'))
     .pipe(gulp.dest(paths.build));
@@ -56,7 +57,7 @@ gulp.task('vendor', function (){
 });
 
 gulp.task('clean', function (){
-  return gulp
+  gulp
     .src(paths.build, {read:false})
     .pipe(plugins.rimraf());
 });
@@ -91,14 +92,9 @@ gulp.task('open', function (){
   require('opn')('http://localhost:' + ports.server);
 });
 
-gulp.task('build', ['clean'], function (){
-  gulp.start('vendor', 'scripts');
+gulp.task('dist', ['clean', 'vendor', 'scripts'], function (){
+  gulp.src(['demo/**/*', 'build/*.js'])
+    .pipe(gulp.dest(paths.dist));
 });
 
-gulp.task('deploy', function (){
-  gulp
-    .src(paths.source)
-    .pipe(plugins.ghPages());
-});
-
-gulp.task('default', ['build', 'connect', 'watch', 'open']);
+gulp.task('default', ['vendor', 'scripts', 'connect', 'watch', 'open']);

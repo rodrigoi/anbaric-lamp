@@ -9,8 +9,8 @@
     "jsfeat": "*",
     "loader.js": "~1.0.0",
     "ocrad-bower": "*",
-    "heapqueue.js": "git@github.com:antimatter15/heapqueue.js.git",
-    "delaunay": "git@github.com:ironwallaby/delaunay.git"
+    "heapqueue.js": "https://github.com/antimatter15/heapqueue.js.git",
+    "delaunay": "https://github.com/ironwallaby/delaunay.git"
   },
   "overrides": {
     "jsfeat": {
