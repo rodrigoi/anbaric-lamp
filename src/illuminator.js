@@ -5,15 +5,11 @@ import selectionUtils from 'selection';
 
 import params from 'constants';
 
-var canvas;
-var selection = {};
-var isMouseDown = false;
-
-function setCursor(cursor){
+function setCursor(canvas, cursor){
   canvas.style.cursor = cursor;
 }
 
-function drawSelection(lines) {
+function drawSelection(canvas, lines, selection) {
   if(!selection.start && !selection.end) {
     return;
   }
@@ -44,13 +40,16 @@ export default function (image, lines, moveCallback, selectionCallback) {
   var container = domUtils.createContainerDiv();
   var imageClientRect = domUtils.getOffsetRect(image);
 
-  canvas = domUtils.createCanvas(
+  var canvas = domUtils.createCanvas(
     imageClientRect.width,
     imageClientRect.height,
     imageClientRect.left,
     imageClientRect.top
   );
   container.appendChild(canvas);
+
+  var isMouseDown = false;
+  var selection = {};
 
   canvas.addEventListener('mousemove', function (e) {
     var position = domUtils.getMousePosition(canvas, e);
@@ -59,7 +58,7 @@ export default function (image, lines, moveCallback, selectionCallback) {
     var closestLetter;
 
     if(closestLine){
-      setCursor(closestLine ? 'text' : 'default');
+      setCursor(canvas, closestLine ? 'text' : 'default');
       closestLetter =  letterUtils.closestLetter(position.x, position.y, closestLine.line);
     }
 
@@ -70,7 +69,7 @@ export default function (image, lines, moveCallback, selectionCallback) {
         letter: closestLetter.index
       };
       if(isMouseDown && selection.start && selection.end) {
-        drawSelection(lines);
+        drawSelection(canvas, lines, selection);
       }
     }
   }, true);

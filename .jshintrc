@@ -7,6 +7,7 @@
     "window": true,
     "location": true,
     "setTimeout": true,
+    "performance": true,
     "jsfeat": true,
     "Delaunay": true,
     "HeapQueue": true,

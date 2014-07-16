@@ -40,10 +40,10 @@ gulp.task('vendor', function (){
   gulp
     .src(mainBowerFiles())
     .pipe(plugins.concat('anbaric-lamp-vendor.js'))
+    .pipe(gulp.dest(paths.build))
+    .pipe(plugins.rename({ suffix: '.min' }))
+    .pipe(plugins.uglify())
     .pipe(gulp.dest(paths.build));
-    // .pipe(plugins.rename({ suffix: '.min' }))
-    // .pipe(plugins.uglify())
-    // .pipe(gulp.dest(paths.build));
 });
 
 gulp.task('connect', function (){
@@ -61,7 +61,7 @@ gulp.task('open', function (){
   require('opn')('http://localhost:' + ports.server);
 });
 
-gulp.task('dist', ['clean', 'vendor', 'scripts'], function (){
+gulp.task('dist', function (){
   gulp.src(['demo/**/*', 'build/*.js'])
     .pipe(gulp.dest(paths.dist));
 });

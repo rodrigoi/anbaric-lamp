@@ -6,7 +6,6 @@ var self = {
     var container = document.createElement('div');
     document.body.appendChild(container);
 
-    container.id = 'anbaric_selection_container';
     container.style.position="absolute";
     container.style.left = x + "px";
     container.style.top = y + "px";

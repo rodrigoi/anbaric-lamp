@@ -19,11 +19,7 @@ import selectionUtils from 'selection';
 import illuminator from 'illuminator';
 import swt from 'swt';
 
-var debugCanvas;
-var debugContext;
-
-function drawDebugMatrix(matrix, lines) {
-  debugContext = debugCanvas.getContext('2d');
+function drawDebugMatrix(matrix, lines, debugContext) {
   var output = debugContext.createImageData(matrix.cols, matrix.rows);
 
   for(var i = 0; i < matrix.cols * matrix.rows; i++) {
@@ -37,10 +33,12 @@ function drawDebugMatrix(matrix, lines) {
   }
   debugContext.putImageData(output, 0, 0);
 
-  lines.forEach(drawLine);
+  lines.forEach(function (line) {
+    drawLine(line, debugContext);
+  });
 }
 
-function drawLine (line) {
+function drawLine (line, debugContext) {
   debugContext.beginPath();
   debugContext.rect(
     line.bounds.x0,
@@ -52,10 +50,12 @@ function drawLine (line) {
   debugContext.strokeStyle = 'blue';
   debugContext.stroke();
 
-  line.letters.forEach(drawLetter);
+  line.letters.forEach(function (letter) {
+    drawLetter(letter, debugContext);
+  });
 }
 
-function drawLetter (letter, color) {
+function drawLetter (letter, debugContext, color) {
   debugContext.beginPath();
   debugContext.rect(
     letter.bounds.x0,
@@ -91,22 +91,46 @@ function OCR (matrix) {
 }
 
 export default function (image, debugContainer) {
+  var executionTime = performance.now();
+  var performanceData = {
+    details: []
+  };
+
+  var start = performance.now();
   var imageData = graphics.getImageData(image);
+  performanceData.details.push({ action: 'get image data from source', time: performance.now() - start });
+
+  start = performance.now();
   var greyScaleMatrix = graphics.createGreyScaleMatrix(imageData);
+  performanceData.details.push({ action: 'create greyscale from image data', time: performance.now() - start });
 
+  start = performance.now();
   var sobelMatrix = graphics.createSobelMatrix(greyScaleMatrix);
+  performanceData.details.push({ action: 'create sobel derivatives from greyscale matrix', time: performance.now() - start });
+
+  start = performance.now();
   var cannyMatrix = graphics.applyGaussianBlurAndCannyEdgeDetector(greyScaleMatrix);
+  performanceData.details.push({ action: 'apply gaussian blur and canny edge detector on greyscale matrix', time: performance.now() - start });
 
+  start = performance.now();
   var lines = swt.transform(imageData, cannyMatrix, sobelMatrix);
+  performanceData.details.push({ action: 'stroke width transformation', time: performance.now() - start });
 
+  start = performance.now();
+  var debugCanvas;
+  var debugContext;
   if(debugContainer && cannyMatrix) {
     console.time('drawing debug matrix');
     debugCanvas = domUtils.createCanvas(greyScaleMatrix.cols, greyScaleMatrix.rows);
-    drawDebugMatrix(cannyMatrix, lines);
+    debugContext = debugCanvas.getContext('2d');
+
+    drawDebugMatrix(cannyMatrix, lines, debugContext);
+
     debugCanvas.className = 'center-block';
     debugContainer.appendChild(debugCanvas);
     console.timeEnd('drawing debug matrix');
   }
+  performanceData.details.push({ action: 'drawing debug matrix', time: performance.now() - start });
 
   // var result = getImageData(source)
   //   .then(createGreyScaleImage)
@@ -121,41 +145,44 @@ export default function (image, debugContainer) {
   //     }
   //   });
 
-//   illuminator(
-//     image,
-//     lines,
-//     function (line, letter) {
-//       if(debugContainer && cannyMatrix) {
-//         drawDebugMatrix(cannyMatrix, lines);
-//         drawLetter(lines[line].letters[letter], 'cyan');
-//       }
-//     },
-//     function (selection) {
-//       var polygon = selectionUtils.selectionToPolygon(selection, lines);
-//       var regions = selectionUtils.selectionToRegions(selection, lines);
+  illuminator(
+    image,
+    lines,
+    function (line, letter) {
+      if(debugContainer && cannyMatrix) {
+        drawDebugMatrix(cannyMatrix, lines, debugContext);
+        drawLetter(lines[line].letters[letter], debugContext, 'cyan');
+      }
+    },
+    function (selection) {
+      var polygon = selectionUtils.selectionToPolygon(selection, lines);
+      var regions = selectionUtils.selectionToRegions(selection, lines);
 
-//       var box = utils.getPolygonBoundingBox(polygon);
-//       var crop = graphics.crop(box, greyScaleMatrix);
+      var box = utils.getPolygonBoundingBox(polygon);
+      var crop = graphics.crop(box, greyScaleMatrix);
 
-//       math.translatePolygon(polygon, { x: box.x0, y: box.y0 });
-//       math.translateRegions(regions, { x: box.x0, y: box.y0 });
+      math.translatePolygon(polygon, { x: box.x0, y: box.y0 });
+      math.translateRegions(regions, { x: box.x0, y: box.y0 });
 
-//       var histogram = graphics.histogram(crop);
-//       var otsu = graphics.otsu(histogram, crop.cols * crop.rows);
-//       for(var i = 0; i < crop.cols * crop.rows; i++) {
-//         var point = math.indexToPoint(i, crop.cols);
-// //         if(math.pointInPolygon(point, polygon)) {
-//         if(math.pointInRegions(point, regions)) {
-//           crop.data[i] = crop.data[i] > otsu ? 255 : 0;
-//         } else {
-//           crop.data[i] = 255;
-//         }
-//       }
+      var histogram = graphics.histogram(crop);
+      var otsu = graphics.otsu(histogram, crop.cols * crop.rows);
+      for(var i = 0; i < crop.cols * crop.rows; i++) {
+        var point = math.indexToPoint(i, crop.cols);
+//         if(math.pointInPolygon(point, polygon)) {
+        if(math.pointInRegions(point, regions)) {
+          crop.data[i] = crop.data[i] > otsu ? 255 : 0;
+        } else {
+          crop.data[i] = 255;
+        }
+      }
 
-//       drawDebugMatrix(crop, []);
+      drawDebugMatrix(crop, [], debugContext);
 
-//       clipboard.setClipboard(OCR(crop));
-//     });
+      clipboard.setClipboard(OCR(crop));
+    });
+
+
+  performanceData.total = performance.now() - executionTime;
 
   return {
     image: image,
@@ -167,14 +194,6 @@ export default function (image, debugContainer) {
     debug: {
       canvas: debugCanvas
     },
-    performance: {
-      details: [
-        { step: 'preprocessing', action: 'get image data from source', time: 28.468 },
-        { step: 'preprocessing', action: 'create greyscale from image data', time: 9.547 },
-        { step: 'preprocessing', action: 'create sobel derivatives from greyscale matrix', time: 23.771 },
-        { step: 'preprocessing', action: 'apply gaussian blur and canny edge detector on greyscale matrix', time: 235.875 }
-      ],
-      total: 2000
-    }
+    performance: performanceData
   };
 }

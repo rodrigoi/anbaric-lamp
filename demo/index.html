@@ -53,13 +53,14 @@
             <tbody>
               {{#each details}}
               <tr>
-                <td>{{step}}</td>
+                <td>&nbsp;</td>
                 <td>{{action}}</td>
                 <td>{{time}}ms</td>
               </tr>
               {{/each}}
               <tr>
-                <td colspan="2">Total Execution Time</td>
+                <td>&nbsp;</td>
+                <td>Total Execution Time</td>
                 <td>{{total}}ms</td>
               </tr>
             </tbody>
@@ -83,7 +84,7 @@
             { cols: 12, image: 'images/lullaby-white.jpg' },
             { cols: 12, image: 'images/lullaby-black.jpg' }
           ]});
-        content.insertBefore(items, document.getElementsByTagName('footer'));
+        content.insertBefore(items, document.getElementsByTagName('footer')[0]);
 
 
         var anbaricLamp = require('anbaric-lamp')['default'];
