@@ -1,4 +1,5 @@
 /*
+some reference
 http://libccv.org/doc/doc-swt/
 http://libccv.org/lib/ccv-swt/
 https://github.com/liuliu/ccv/blob/unstable/lib/ccv_swt.c
@@ -8,7 +9,6 @@ https://github.com/adamhooper/js-priority-queue
 https://github.com/naptha/naptha.github.io
 http://www.m.cs.osakafu-u.ac.jp/cbdar2007/proceedings/papers/O1-1.pdf
 */
-
 import math from 'math';
 import utils from 'utils';
 import domUtils from 'dom-utils';
@@ -121,41 +121,41 @@ export default function (image, debugContainer) {
   //     }
   //   });
 
-  illuminator(
-    image,
-    lines,
-    function (line, letter) {
-      if(debugContainer && cannyMatrix) {
-        drawDebugMatrix(cannyMatrix, lines);
-        drawLetter(lines[line].letters[letter], 'cyan');
-      }
-    },
-    function (selection) {
-      var polygon = selectionUtils.selectionToPolygon(selection, lines);
-      var regions = selectionUtils.selectionToRegions(selection, lines);
+//   illuminator(
+//     image,
+//     lines,
+//     function (line, letter) {
+//       if(debugContainer && cannyMatrix) {
+//         drawDebugMatrix(cannyMatrix, lines);
+//         drawLetter(lines[line].letters[letter], 'cyan');
+//       }
+//     },
+//     function (selection) {
+//       var polygon = selectionUtils.selectionToPolygon(selection, lines);
+//       var regions = selectionUtils.selectionToRegions(selection, lines);
 
-      var box = utils.getPolygonBoundingBox(polygon);
-      var crop = graphics.crop(box, greyScaleMatrix);
+//       var box = utils.getPolygonBoundingBox(polygon);
+//       var crop = graphics.crop(box, greyScaleMatrix);
 
-      math.translatePolygon(polygon, { x: box.x0, y: box.y0 });
-      math.translateRegions(regions, { x: box.x0, y: box.y0 });
+//       math.translatePolygon(polygon, { x: box.x0, y: box.y0 });
+//       math.translateRegions(regions, { x: box.x0, y: box.y0 });
 
-      var histogram = graphics.histogram(crop);
-      var otsu = graphics.otsu(histogram, crop.cols * crop.rows);
-      for(var i = 0; i < crop.cols * crop.rows; i++) {
-        var point = math.indexToPoint(i, crop.cols);
-//         if(math.pointInPolygon(point, polygon)) {
-        if(math.pointInRegions(point, regions)) {
-          crop.data[i] = crop.data[i] > otsu ? 255 : 0;
-        } else {
-          crop.data[i] = 255;
-        }
-      }
+//       var histogram = graphics.histogram(crop);
+//       var otsu = graphics.otsu(histogram, crop.cols * crop.rows);
+//       for(var i = 0; i < crop.cols * crop.rows; i++) {
+//         var point = math.indexToPoint(i, crop.cols);
+// //         if(math.pointInPolygon(point, polygon)) {
+//         if(math.pointInRegions(point, regions)) {
+//           crop.data[i] = crop.data[i] > otsu ? 255 : 0;
+//         } else {
+//           crop.data[i] = 255;
+//         }
+//       }
 
-      drawDebugMatrix(crop, []);
+//       drawDebugMatrix(crop, []);
 
-      clipboard.setClipboard(OCR(crop));
-    });
+//       clipboard.setClipboard(OCR(crop));
+//     });
 
   return {
     image: image,
@@ -166,6 +166,15 @@ export default function (image, debugContainer) {
     illuminator: illuminator,
     debug: {
       canvas: debugCanvas
+    },
+    performance: {
+      details: [
+        { step: 'preprocessing', action: 'get image data from source', time: 28.468 },
+        { step: 'preprocessing', action: 'create greyscale from image data', time: 9.547 },
+        { step: 'preprocessing', action: 'create sobel derivatives from greyscale matrix', time: 23.771 },
+        { step: 'preprocessing', action: 'apply gaussian blur and canny edge detector on greyscale matrix', time: 235.875 }
+      ],
+      total: 2000
     }
   };
 }

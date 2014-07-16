@@ -5,21 +5,6 @@ var plugins = require('gulp-load-plugins')();
 var mainBowerFiles = require('main-bower-files');
 var express = require('express');
 
-var pkg = require('./package.json');
-var banner = ['/**',
-  ' * <%= pkg.name %> - <%= pkg.description %>',
-  ' * @version v<%= pkg.version %>',
-  ' * @link <%= pkg.homepage %>',
-  ' * @license <%= pkg.license %>',
-  ' */',
-  ''].join('\n');
-
-/*
-gulp.src('./foo/*.js')
-  .pipe(header(banner, { pkg : pkg } ))
-  .pipe(gulp.dest('./dist/')
-*/
-
 var paths = {
   source: 'src/**/*.js',
   demo:   './demo',
@@ -28,9 +13,14 @@ var paths = {
 };
 
 var ports = {
-  livereload: 35729,
   server: 4200
 };
+
+gulp.task('clean', function (){
+  gulp
+    .src(paths.build, {read:false})
+    .pipe(plugins.rimraf());
+});
 
 gulp.task('scripts', function (){
   gulp
@@ -56,32 +46,11 @@ gulp.task('vendor', function (){
     // .pipe(gulp.dest(paths.build));
 });
 
-gulp.task('clean', function (){
-  gulp
-    .src(paths.build, {read:false})
-    .pipe(plugins.rimraf());
-});
-
-gulp.task('watch', function (){
-  // gulp.watch(paths.source, ['scripts']);
-
-  // var lr = plugins.livereload();
-
-  // gulp.watch([
-  //   paths.build + '**',
-  //   paths.demo + '**/*.html'
-  // ]).on('change', function(file){
-  //   lr.changed(file.path);
-  // });
-});
-
 gulp.task('connect', function (){
-  plugins.livereload.listen();
-
   var demo = express();
   demo
     .use(require('morgan')('dev'))
-    .use(require('connect-livereload')({port: ports.livereload}))
+    .use(require('connect-livereload')())
     .use(express.static(paths.demo))
     .use(express.static(paths.build))
     .use('/bower_components', express.static('./bower_components'))
@@ -97,4 +66,10 @@ gulp.task('dist', ['clean', 'vendor', 'scripts'], function (){
     .pipe(gulp.dest(paths.dist));
 });
 
-gulp.task('default', ['vendor', 'scripts', 'connect', 'watch', 'open']);
+gulp.task('default', ['vendor', 'scripts', 'connect', 'open'], function (){
+  plugins.watch({ glob: [
+    paths.demo  + '/**/*',
+    paths.build + '/**/*'
+  ]})
+  .pipe(plugins.livereload());
+});
